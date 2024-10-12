@@ -3,11 +3,11 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from importlib import import_module
+
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
-from importlib import import_module
-
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -19,16 +19,17 @@ def register_extensions(app):
 
 
 def register_blueprints(app):
-    for module_name in ('authentication', 'home'):
-        module = import_module('apps.{}.routes'.format(module_name))
+    for module_name in ("authentication", "home"):
+        module = import_module("apps.{}.routes".format(module_name))
         app.register_blueprint(module.blueprint)
 
 
 def configure_database(app):
-
-    @app.before_first_request
-    def initialize_database():
+    with app.app_context():
         db.create_all()
+    # @app.before_first_request
+    # def initialize_database():
+    #     db.create_all()
 
     @app.teardown_request
     def shutdown_session(exception=None):
